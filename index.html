@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b2b40">
+<title>捏捏小鱼 🐠</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    width:100%; height:100%; overflow:hidden;
+    background: radial-gradient(circle at 50% 40%, #1a6b8a 0%, #0b2b40 70%, #061924 100%);
+    display: flex; justify-content: center; align-items: center;
+    user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    position: relative;
+  }
+
+  .bg-bubble {
+    position: absolute;
+    background: rgba(160, 222, 255, 0.08);
+    border: 1px solid rgba(190, 235, 255, 0.2);
+    border-radius: 50%;
+    bottom: -50px;
+    animation: rise 8s linear infinite;
+    pointer-events: none;
+  }
+  .bb1 { left: 15%; width: 20px; height: 20px; animation-delay: 0s; }
+  .bb2 { left: 50%; width: 30px; height: 30px; animation-delay: 2s; }
+  .bb3 { left: 80%; width: 15px; height: 15px; animation-delay: 4s; }
+  .bb4 { left: 35%; width: 25px; height: 25px; animation-delay: 6s; }
+
+  @keyframes rise {
+    0% { bottom: -50px; opacity: 0; transform: translateX(0); }
+    20% { opacity: 1; }
+    100% { bottom: 110%; opacity: 0; transform: translateX(30px); }
+  }
+
+  .switch-btn {
+    position: fixed;
+    top: 30px; right: 20px;
+    width: 55px; height: 55px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    font-size: 26px;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 999;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+  .switch-btn:active { transform: scale(0.8) rotate(15deg); }
+
+  .fish-wrapper {
+    animation: float 3s ease-in-out infinite;
+    position: relative;
+    display: flex; justify-content: center; align-items: center;
+    width: 320px; height: 220px;
+    margin-bottom: 60px;
+  }
+
+  .fish {
+    width: 320px; height: 220px;
+    transform-origin: center bottom;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+  }
+  .fish.squish {
+    transform: scale(1.15, 0.75) translateY(25px);
+    transition: transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .fish-svg {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: none;
+    pointer-events: none;
+  }
+  .fish-svg.active { display: block; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .speech-bubble {
+    position: absolute;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    background: #FFFFFF;
+    color: #333;
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+    opacity: 0;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    pointer-events: none;
+    z-index: 10;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px 8px 0;
+    border-style: solid;
+    border-color: #FFFFFF transparent transparent;
+  }
+  .speech-bubble.pop {
+    animation: bubblePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .speech-bubble.fade {
+    animation: bubbleFade 0.4s ease forwards;
+  }
+
+  @keyframes bubblePop {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.3) translateY(20px); }
+    70% { opacity: 1; transform: translateX(-50%) scale(1.1) translateY(-5px); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+  }
+  @keyframes bubbleFade {
+    0% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(-15px); }
+  }
+
+  .download-btn {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 32px;
+    border-radius: 30px;
+    background: #FFC145;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(255, 193, 69, 0.4);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+  .download-btn:active { transform: translateX(-50%) scale(0.9); }
+
+  .hint {
+    position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%);
+    color: rgba(200, 235, 255, 0.5); font-size: 13px; letter-spacing: 2px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-bubble bb1"></div>
+<div class="bg-bubble bb2"></div>
+<div class="bg-bubble bb3"></div>
+<div class="bg-bubble bb4"></div>
+
+<button class="switch-btn" id="switchBtn">🔄</button>
+
+<div class="fish-wrapper">
+  <div class="speech-bubble" id="speechBubble"></div>
+  <div class="fish" id="fish">
+
+    <svg class="fish-svg active" id="fish1" viewBox="0 0 320 220">
+      <defs>
+        <radialGradient id="grad1" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FFE0A3"/>
+          <stop offset="60%" stop-color="#FFC145"/>
+          <stop offset="100%" stop-color="#E8842C"/>
+        </radialGradient>
+      </defs>
+      <path d="M 90 110 Q 20 30 10 70 Q 50 110 10 150 Q 20 190 90 110" fill="#FF9F5A" stroke="#E8842C" stroke-width="2"/>
+      <path d="M 140 60 Q 180 10 220 60 Z" fill="#FFA855" stroke="#E8842C" stroke-width="2"/>
+      <path d="M 190 130 Q 230 170 170 170 Z" fill="#FFA855" stroke="#E8842C" stroke-width="2"/>
+      <ellipse cx="170" cy="110" rx="85" ry="65" fill="url(#grad1)" stroke="#E8842C" stroke-width="2"/>
+      <ellipse cx="150" cy="130" rx="55" ry="35" fill="#FFF4D4" opacity="0.5"/>
+      <circle cx="220" cy="85" r="18" fill="#FFFFFF" stroke="#E8842C" stroke-width="2"/>
+      <circle cx="226" cy="85" r="10" fill="#1A1A1A"/>
+      <circle cx="230" cy="81" r="4" fill="#FFFFFF"/>
+      <circle cx="223" cy="88" r="2" fill="#FFFFFF" opacity="0.6"/>
+      <ellipse cx="245" cy="115" rx="12" ry="8" fill="#FF8C9E" opacity="0.6"/>
+      <path d="M 250 105 Q 260 115 250 120" stroke="#CC5500" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <circle cx="280" cy="65" r="6" fill="none" stroke="#A0E0FF" stroke-width="2"/>
+      <circle cx="295" cy="45" r="4" fill="none" stroke="#A0E0FF" stroke-width="2"/>
+    </svg>
+
+    <svg class="fish-svg" id="fish2" viewBox="0 0 320 220">
+      <defs>
+        <radialGradient id="grad2" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#B3E5FF"/>
+          <stop offset="60%" stop-color="#55C0FF"/>
+          <stop offset="100%" stop-color="#2A8CBF"/>
+        </radialGradient>
+      </defs>
+      <path d="M 100 110 Q 30 40 20 80 Q 60 110 20 140 Q 30 180 100 110" fill="#7FDBFF" stroke="#2A8CBF" stroke-width="2"/>
+      <path d="M 150 60 Q 180 30 210 60 Z" fill="#7FDBFF" stroke="#2A8CBF" stroke-width="2"/>
+      <ellipse cx="180" cy="110" rx="90" ry="70" fill="url(#grad2)" stroke="#2A8CBF" stroke-width="2"/>
+      <ellipse cx="160" cy="130" rx="60" ry="40" fill="#E0F4FF" opacity="0.5"/>
+      <circle cx="240" cy="85" r="20" fill="#FFFFFF" stroke="#2A8CBF" stroke-width="2"/>
+      <circle cx="248" cy="85" r="12" fill="#0D2B45"/>
+      <circle cx="253" cy="80" r="5" fill="#FFFFFF"/>
+      <circle cx="244" cy="90" r="2.5" fill="#FFFFFF" opacity="0.6"/>
+      <ellipse cx="265" cy="120" rx="14" ry="9" fill="#FF8C9E" opacity="0.6"/>
+      <ellipse cx="270" cy="105" rx="8" ry="6" fill="#FF8C9E"/>
+      <circle cx="300" cy="60" r="5" fill="none" stroke="#A0E0FF" stroke-width="2"/>
+      <circle cx="315" cy="40" r="3" fill="none" stroke="#A0E0FF" stroke-width="2"/>
+    </svg>
+
+    <svg class="fish-svg" id="fish3" viewBox="0 0 320 220">
+      <defs>
+        <radialGradient id="grad3" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FFD1E8"/>
+          <stop offset="60%" stop-color="#FF85C0"/>
+          <stop offset="100%" stop-color="#D94A8C"/>
+        </radialGradient>
+      </defs>
+      <path d="M 170 35 L 180 15 L 190 35 Z" fill="#FF6B9E" stroke="#D94A8C" stroke-width="1.5"/>
+      <path d="M 95 110 L 75 100 L 95 90 Z" fill="#FF6B9E" stroke="#D94A8C" stroke-width="1.5"/>
+      <path d="M 245 110 L 265 100 L 245 90 Z" fill="#FF6B9E" stroke="#D94A8C" stroke-width="1.5"/>
+      <path d="M 170 185 L 180 205 L 190 185 Z" fill="#FF6B9E" stroke="#D94A8C" stroke-width="1.5"/>
+      <path d="M 115 50 L 100 35 L 105 60 Z" fill="#FF6B9E" stroke="#D94A8C" stroke-width="1.5"/>
+      <path d="M 225 50 L 240 35 L 235 60 Z" fill="#FF6B9E" stroke="#D94A8C" stroke-width="1.5"/>
+      <circle cx="170" cy="110" r="80" fill="url(#grad3)" stroke="#D94A8C" stroke-width="2"/>
+      <circle cx="160" cy="120" r="60" fill="#FFE0F0" opacity="0.4"/>
+      <circle cx="215" cy="85" r="18" fill="#FFFFFF" stroke="#D94A8C" stroke-width="2"/>
+      <circle cx="220" cy="85" r="10" fill="#1A1A1A"/>
+      <circle cx="224" cy="81" r="4" fill="#FFFFFF"/>
+      <circle cx="125" cy="85" r="18" fill="#FFFFFF" stroke="#D94A8C" stroke-width="2"/>
+      <circle cx="130" cy="85" r="10" fill="#1A1A1A"/>
+      <circle cx="134" cy="81" r="4" fill="#FFFFFF"/>
+      <path d="M 200 65 L 215 70" stroke="#D94A8C" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 140 65 L 125 70" stroke="#D94A8C" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 160 125 Q 170 135 180 125" stroke="#D94A8C" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 245 45 L 260 60 M 260 45 L 245 60" stroke="#FF3366" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+
+  </div>
+</div>
+
+<!-- ⬇️⬇️⬇️ 已替换为你提供的 APK 永久下载链接 ⬇️⬇️⬇️ -->
+<a class="download-btn" 
+   href="https://github.com/wjm41y/-/releases/download/v1.0.0/xiaoyunn-v2.7.apk" 
+   download="xiaoyunn-v2.7.apk" 
+   target="_blank">
+   📥 下载 APK
+</a>
+
+<div class="hint">点屏幕任意地方，捏一捏 ~</div>
+
+<script>
+  var fishEl = document.getElementById('fish');
+  var speechBubble = document.getElementById('speechBubble');
+  var switchBtn = document.getElementById('switchBtn');
+  var currentFish = 1;
+  var isSquished = false;
+  var switchLocked = false;
+
+  var fishPhrases = {
+    1: ["咕噜咕噜~", "好软呀~", "贴贴~", "最喜欢你了~", "给你吐个泡泡~", "摸摸头好不好嘛~", "今天也要元气满满！", "捏我干嘛！", "好舒服呀~"],
+    2: ["嘟嘟嘟~", "我是蓝胖胖！", "看我大眼睛！", "咕噜咕噜~", "我好像...又胖了...", "抱抱你~", "晚安，做个好梦~", "不要戳我眼睛啦！", "我飘了~"],
+    3: ["气死我啦！", "别碰我的刺！", "你再捏我要生气了！", "哼，不理你了！", "再捏我就咬你！", "已气成河豚！", "再捏我就变成气球飞走了！", "我超凶的！"]
+  };
+
+  var audioCtx = null;
+  function playSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(700, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.12);
+    } catch (e) {}
+  }
+
+  function speak() {
+    var list = fishPhrases[currentFish];
+    speechBubble.textContent = list[Math.floor(Math.random() * list.length)];
+    speechBubble.classList.remove('pop', 'fade');
+    void speechBubble.offsetWidth;
+    speechBubble.classList.add('pop');
+    clearTimeout(window.speechTimer);
+    window.speechTimer = setTimeout(function() {
+      speechBubble.classList.remove('pop');
+      speechBubble.classList.add('fade');
+    }, 1800);
+  }
+
+  function squish() {
+    if (isSquished) return;
+    isSquished = true;
+    fishEl.classList.add('squish');
+    playSound();
+    if (navigator.vibrate) navigator.vibrate(30);
+    speak();
+  }
+
+  function release() {
+    if (!isSquished) return;
+    isSquished = false;
+    fishEl.classList.remove('squish');
+  }
+
+  function isSwitchOrDownload(target) {
+    if (!target) return false;
+    var el = target.nodeType === 3 ? target.parentNode : target;
+    return el && (
+      (el.closest && el.closest('.switch-btn')) ||
+      (el.closest && el.closest('.download-btn'))
+    );
+  }
+
+  document.addEventListener('touchstart', function(e) {
+    if (isSwitchOrDownload(e.target)) return;
+    squish();
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (isSwitchOrDownload(e.target)) return;
+    release();
+  }, { passive: true });
+
+  document.addEventListener('touchcancel', function(e) {
+    if (isSwitchOrDownload(e.target)) return;
+    release();
+  }, { passive: true });
+
+  document.addEventListener('mousedown', function(e) {
+    if (isSwitchOrDownload(e.target)) return;
+    squish();
+  });
+
+  document.addEventListener('mouseup', function(e) {
+    if (isSwitchOrDownload(e.target)) return;
+    release();
+  });
+
+  function doSwitch() {
+    if (switchLocked) return;
+    switchLocked = true;
+    document.getElementById('fish' + currentFish).classList.remove('active');
+    currentFish = currentFish % 3 + 1;
+    document.getElementById('fish' + currentFish).classList.add('active');
+    playSound();
+    speak();
+    setTimeout(function() { switchLocked = false; }, 400);
+  }
+
+  switchBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    doSwitch();
+  });
+
+  document.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+</script>
+</body>
+</html>
